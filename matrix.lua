@@ -1,5 +1,5 @@
 function matrix(n,m)
-  mt = {}
+  local mt = {}
   for i=1,n do
     mt[i]={}
     for j=1,m do
@@ -26,13 +26,13 @@ end
 
 function matrix_mult(a,b)
   if b.w ~= nil then
-    p = matrix(4,1)
+    local p = matrix(4,1)
     for i=1,#a do
       p[i][1]=(a[i][1] * b.x) + (a[i][2] * b.y) + (a[i][3] * b.z) + (a[i][4] * b.w)
     end
     return tuple(p[1][1], p[2][1], p[3][1], p[4][1])
   end
-  c = matrix(#a, #b[1])
+  local c = matrix(#a, #b[1])
   for i=1,#c do
     for j=1,#c[1] do
       c[i][j] = (a[i][1] * b[1][j]) + (a[i][2] * b[2][j]) + (a[i][3] * b[3][j]) + (a[i][4] * b[4][j])
@@ -53,9 +53,9 @@ function det(mat)
 end
 
 function transpose(a)
-  b = matrix(#a, #a[0])
+  local b = matrix(#a, #a[1])
   for i=1,#a do
-    for j=1,#a[0] do
+    for j=1,#a[1] do
       b[i][j] = a[j][i]
     end
   end
@@ -63,7 +63,7 @@ function transpose(a)
 end
 
 function submatrix(a, r, c)
-  mat = matrix(#a, #a[1])
+  local mat = matrix(#a, #a[1])
   for i=1,#a do
     for j=1,#a[1] do
       mat[i][j] = a[i][j]
@@ -77,7 +77,7 @@ function submatrix(a, r, c)
 end
 
 function minor(mat, x, y)
-  submat = submatrix(mat, x, y)
+  local submat = submatrix(mat, x, y)
   return det(submat)
 end
 
@@ -90,8 +90,8 @@ end
 
 function inverse(mat)
   assert(invertible(mat), "Matrix is not invertible")
-  mat2 = matrix(#mat, #mat[1])
-
+  local mat2 = matrix(#mat, #mat[1])
+  local c=0
   for i=1,#mat do
     for j=1,#mat[1] do
       c = cofactor(mat, i, j)
