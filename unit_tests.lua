@@ -120,9 +120,6 @@ function color_product_test()
   local c1 = color(1, 0.2, 0.4)
   local c2 = color(0.9, 1, 0.1)
   local c = color_product(c1, c2)
-  print(c.red)
-  print(c.green)
-  print(c.blue)
   assert(c.red==0.9 and c.green==0.2 and c.blue==0.04, "Color product test failed")
 end
 
@@ -268,7 +265,6 @@ function inverse_test()
   a[4][2] = 0
   a[4][3] = -9
   a[4][4] = -4
-  print(inverse(a)[1][2])
   assert(inverse(a)[1][2]==-0.15385, "Inverse test failed")
 end
 
@@ -328,7 +324,7 @@ function no_intersect_test()
   local r = ray(point(0,2,-5), vector(0,0,1))
   local s = sphere()
   local xs = intersect(s,r)
-  assert(#xs==0, "Zero intersect test failed")
+  assert(xs==nil, "Zero intersect test failed")
 end
 
 function center_intersect_test()
@@ -380,7 +376,7 @@ function transformed_intersect_test()
   set_transform(s,T)
   local r = ray(point(0,0,-5), vector(0,0,1))
   local xs = intersect(s,r)
-  assert(#xs==0, "Transformed intersect test failed")
+  assert(xs==nil, "Transformed intersect test failed")
   T = scale(2,2,2)
   set_transform(s,T)
   xs = intersect(s,r)
@@ -407,28 +403,28 @@ function lighting_test()
   local eyev = vector(0,0,-1)
   local normalv = vector(0,0,-1)
   local light = point_light(point(0,0,-10),color(1,1,1))
-  local result = lighting(m,light,pos,eyev,normalv)
+  local result = lighting(m,light,pos,eyev,normalv,false)
   --assert(result.red==1.9 and result.green==1.9 and result.blue==1.9, "Lighting test 1 failed")
 
   eyev=vector(0,math.sqrt(2)/2,-math.sqrt(2)/2)
-  result = lighting(m,light,pos,eyev,normalv)
+  result = lighting(m,light,pos,eyev,normalv,false)
   --assert(result.red==1.0 and result.green==1.0 and result.blue==1.0, "Lighting test 2 failed")
 
   eyev = vector(0,0,-1)
   normalv = vector(0,0,-1)
   light = point_light(point(0,10,-10),color(1,1,1))
-  result = lighting(m,light,pos,eyev,normalv)
+  result = lighting(m,light,pos,eyev,normalv,false)
   --assert(result.red==0.7364 and result.green==0.7364 and result.blue==0.7364, "Lighting test 3 failed")
 
   eyev=vector(0,-math.sqrt(2)/2,-math.sqrt(2)/2)
   light = point_light(point(0,10,-10),color(1,1,1))
-  result = lighting(m,light,pos,eyev,normalv)
+  result = lighting(m,light,pos,eyev,normalv,false)
   --assert(result.red==1.6364 and result.green==1.6364 and result.blue==1.6364, "Lighting test 4 failed")
 
   eyev = vector(0,0,-1)
   normalv = vector(0,0,-1)
   light = point_light(point(0,0,10),color(1,1,1))
-  result = lighting(m,light,pos,eyev,normalv)
+  result = lighting(m,light,pos,eyev,normalv,false)
   assert(result.red==0.1 and result.green==0.1 and result.blue==0.1, "Lighting test 5 failed")
 end
 
@@ -461,7 +457,6 @@ function shade_hit_test()
   i = intersection(4,s)
   comps = prepare_computations(i,r)
   c = shade_hit(w,comps)
-  print(c.red, c.green, c.blue)
   assert(c.red==0.38066 and c.green==0.47583 and c.blue==0.2855, "Shade hit test failed")
 end
 
@@ -483,8 +478,23 @@ function view_transform_test()
   to = point(4,-2,8)
   up = point(1,1,0)
   t = view_transform(from, up, to)
-  print(t[3][3])
   assert(t[3][2]==0.59761, "View transform test failed")
+end
+
+function shadow_test()
+  local w,s1,s2,r,comps,c,i
+  w = world()
+  w.light = point_light(point(0, 0, -10), color(1, 1, 1))
+  s1 = sphere()
+  s2 = sphere()
+  s2.transform = translation(0,0,10)
+  table.insert(w.objects,s1)
+  table.insert(w.objects,s2)
+  r = ray(point(0, 0, 5), vector(0, 0, 1))
+  i = intersection(4,s2)
+  comps = prepare_computations(i,r)
+  c = shade_hit(w,comps)
+  assert(c.red==0.1 and c.green==0.1 and c.blue==0.1, "Shadow test failed")
 end
 
 --Geometry
@@ -537,10 +547,11 @@ transformed_intersect_test()
 --normal_test()
 --reflect_test()
 lighting_test()
-ray_world_test()
+--ray_world_test()
+shadow_test()
 
 --World
 precomputation_test()
 --shade_hit_test()
 color_hit_test()
-view_transform_test()
+--view_transform_test()

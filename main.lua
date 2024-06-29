@@ -6,7 +6,7 @@ floor = sphere()
 floor.transform = scale(10,0.01, 10)
 floor.material = material()
 floor.material.color = color(1,0.9,0.9)
-floor.material.specual = 0
+floor.material.specular = 0
 
 left_wall = sphere()
 left_wall.transform = matrix_mult(translation(0,0,5), matrix_mult(rotation_y(-math.pi/4), matrix_mult(rotation_x(math.pi/2),scale(10,0.01,10))))

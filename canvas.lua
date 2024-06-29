@@ -35,10 +35,13 @@ function material()
   return {color=color(1,1,1),ambient=0.1,diffuse=0.9,specular=0.9,shininess=200}
 end
 
-function lighting(mat, light, point, eyev, normalv)
+function lighting(mat, light, point, eyev, normalv, in_shadow)
   local effective_color = color_product(mat.color,light.intensity)
   local lightv = norm(subtract(light.position, point))
   local ambient = color_mult(effective_color, mat.ambient)
+  if in_shadow then
+    return ambient
+  end
   local light_dot_normal = dot(lightv,normalv)
   local diffuse, specular
   if (light_dot_normal < 0) then
@@ -59,7 +62,7 @@ function lighting(mat, light, point, eyev, normalv)
 end
 
 function shade_hit(w, comps)
-  return lighting(comps.object.material, w.light, comps.point, comps.eyev, comps.normalv)
+  return lighting(comps.object.material, w.light, comps.point, comps.eyev, comps.normalv, is_shadowed(w,comps.over_point))
 end
 
 function color_at(w,r)
@@ -99,4 +102,19 @@ function render(cam, w)
     end
   end
   return image
+end
+
+function is_shadowed(w,p)
+  local v,dist,dir,r,xs,h
+  v = subtract(w.light.position, p)
+  dist = magnitude(v)
+  dir = norm(v)
+  r = ray(p,dir)
+  xs = intersect_world(w,r)
+  h = hit(xs)
+  if h and h.t<dist then
+    return true
+  else
+    return false
+  end
 end

@@ -36,7 +36,7 @@ function world()
 end
 
 function intersection(vt, s)
-  return {t = vt, object=s}
+  return {type = "intersection",t = vt, object=s}
 end
 
 function intersections(...)
@@ -98,14 +98,19 @@ function intersect(s, r)
   local c = dot(sphere_to_ray, sphere_to_ray)-1
   disc = b^2 - 4*a*c
   if disc < 0 then
-    return {}
+    return nil
   end
   local t1 = (-b - math.sqrt(disc))/(2*a)
   local t2 = (-b + math.sqrt(disc))/(2*a)
-  return intersections(intersection(t1,s), intersection(t2,s))
+  local x1 = intersection(t1,s)
+  local x2 = intersection(t2,s)
+  return intersections(x1, x2)
 end
 
 function hit(ints)
+  if ints==nil then
+    return nil
+  end
   for i=1,#ints do
     if ints[i].t>0 then
       return ints[i]
@@ -131,11 +136,14 @@ function intersect_world(world, r)
   local flatxs = {}
   for i=1,#world.objects do
     local o = world.objects[i]
-    table.insert(xs,intersect(o,r))
+    local x = intersect(o,r)
+    if x ~= nil then
+      table.insert(xs,x)
+    end
   end
   for _,it in pairs(xs) do
-    for _,t in pairs(it) do
-      table.insert(flatxs, t)
+    for _,tab in pairs(it) do
+      table.insert(flatxs, tab)
     end
   end
   table.sort(flatxs, function(a,b)
@@ -159,5 +167,6 @@ function prepare_computations(x, r)
   else
     comps.inside=false
   end
+  comps.over_point = add(comps.point, mult(comps.normalv,0.00001))
   return comps
 end

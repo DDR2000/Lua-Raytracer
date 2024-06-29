@@ -82,8 +82,6 @@ end
 
 function view_transform(from, up, to)
   local forward, left, true_up, orientation
-  print(to.w)
-  print(from.w)
   forward = norm(subtract(to, from))
   left = cross(forward, up)   --I'd rather use the right vector here
   true_up = cross(left,forward)
